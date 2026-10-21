@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>সহায়ক টুলস — Madrasa Manager</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Hind Siliguri","Noto Sans Bengali",sans-serif;background:#f1f5f9;color:#0d213d}
+.bar{background:#0d213d;color:#fff;padding:12px 18px;display:flex;align-items:center;gap:14px}
+.bar a{color:#fff;text-decoration:none;font-size:15px}
+.bar h1{font-size:18px;flex:1}
+.wrap{max-width:900px;margin:18px auto;padding:0 16px;display:flex;flex-direction:column;gap:16px}
+.tool{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px}
+.tool h3{margin-bottom:4px;font-size:17px}
+.tool p.hint{color:#64748b;font-size:13px;margin-bottom:10px}
+textarea{width:100%;min-height:110px;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:16px;font-family:inherit;resize:vertical}
+.row{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.btn{background:#0d213d;color:#fff;border:none;border-radius:8px;padding:9px 18px;cursor:pointer;font-size:15px;font-family:inherit}
+.btn.ghost{background:#fff;color:#0d213d;border:1px solid #0d213d}
+.out{background:#f8fafc;border:1px dashed #94a3b8;border-radius:8px;padding:12px;font-size:16px;min-height:60px;white-space:pre-wrap;word-break:break-word}
+.stats{display:flex;gap:14px;flex-wrap:wrap;font-size:15px}
+.stats b{color:#0d213d}
+</style>
+</head>
+<body>
+<div class="bar"><a href="index.html">← সব টুলস</a><h1>🔧 সহায়ক টুলস</h1></div>
+<div class="wrap">
+
+<div class="tool">
+<h3>সংখ্যা রূপান্তর</h3>
+<p class="hint">ইংরেজি ↔ বাংলা সংখ্যা বদলান</p>
+<textarea id="numIn" placeholder="যেমন: 2026 সালে ১০০ নম্বরের পরীক্ষা"></textarea>
+<div class="row">
+<button class="btn" onclick="numConv('en2bn')">123 → ১২৩</button>
+<button class="btn" onclick="numConv('bn2en')">১২৩ → 123</button>
+<button class="btn ghost" onclick="copyOut('numOut')">কপি</button>
+</div>
+<div class="out" id="numOut">—</div>
+</div>
+
+<div class="tool">
+<h3>শব্দ ও অক্ষর গণনা</h3>
+<p class="hint">প্রশ্নপত্রের লেখা মাপুন</p>
+<textarea id="cntIn" oninput="countIt()" placeholder="এখানে লেখা পেস্ট করুন…"></textarea>
+<div class="stats" id="cntOut" style="margin-top:10px"><span>শব্দ: <b>০</b></span><span>অক্ষর: <b>০</b></span><span>লাইন: <b>০</b></span></div>
+</div>
+
+<div class="tool">
+<h3>অতিরিক্ত স্পেস পরিষ্কার</h3>
+<p class="hint">ডাবল স্পেস ও ফাঁকা লাইন মুছে সাজানো লেখা দিন</p>
+<textarea id="spIn" placeholder="এলোমেলো লেখা এখানে দিন…"></textarea>
+<div class="row">
+<button class="btn" onclick="cleanSp()">পরিষ্কার করো</button>
+<button class="btn ghost" onclick="copyOut('spOut')">কপি</button>
+</div>
+<div class="out" id="spOut">—</div>
+</div>
+
+<div class="tool">
+<h3>ইংরেজি বড়/ছোট হাত</h3>
+<textarea id="csIn" placeholder="English text here…"></textarea>
+<div class="row">
+<button class="btn" onclick="csConv('up')">বড় হাত (ABC)</button>
+<button class="btn" onclick="csConv('low')">ছোট হাত (abc)</button>
+<button class="btn ghost" onclick="copyOut('csOut')">কপি</button>
+</div>
+<div class="out" id="csOut">—</div>
+</div>
+
+</div>
+<script>
+const bn=d=>String(d).replace(/[0-9]/g,c=>'০১২৩৪৫৬৭৮৯'[c]);
+const en=d=>String(d).replace(/[০-৯]/g,c=>'০১২৩৪৫৬৭৮৯'.indexOf(c));
+function numConv(w){const v=document.getElementById('numIn').value;document.getElementById('numOut').textContent=v?(w=='en2bn'?bn(v):en(v)):'—';}
+function countIt(){
+ const v=document.getElementById('cntIn').value;
+ const w=v.trim()?v.trim().split(/\s+/).length:0;
+ document.getElementById('cntOut').innerHTML='<span>শব্দ: <b>'+bn(w)+'</b></span><span>অক্ষর (স্পেস ছাড়া): <b>'+bn(v.replace(/\s/g,'').length)+'</b></span><span>অক্ষর (স্পেসসহ): <b>'+bn(v.length)+'</b></span><span>লাইন: <b>'+bn(v?v.split('\n').length:0)+'</b></span>';
+}
+function cleanSp(){
+ let v=document.getElementById('spIn').value;
+ v=v.replace(/[ \t]+/g,' ').replace(/\n\s*\n\s*\n/g,'\n\n').trim();
+ document.getElementById('spOut').textContent=v||'—';
+}
+function csConv(w){const v=document.getElementById('csIn').value;document.getElementById('csOut').textContent=v?(w=='up'?v.toUpperCase():v.toLowerCase()):'—';}
+function copyOut(id){const t=document.getElementById(id).textContent;if(t&&t!='—')navigator.clipboard.writeText(t);}
+</script>
+</body>
+</html>

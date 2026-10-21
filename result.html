@@ -54,6 +54,16 @@ th input.fm{width:52px}
 </div>
 </div>
 
+<div class="panel noprint">
+<h3>হিসাব কাস্টমাইজ <button class="btn sm ghost" onclick="document.getElementById('cust').style.display=document.getElementById('cust').style.display=='none'?'block':'none'">বদলাও</button></h3>
+<div id="cust" style="display:none"><div class="row">
+<label class="f">মুমতাজ %<input type="number" id="cMum" value="80" oninput="render()"></label>
+<label class="f">জায়্যিদ জিদ্দান %<input type="number" id="cJj" value="65" oninput="render()"></label>
+<label class="f">জায়্যিদ %<input type="number" id="cJ" value="50" oninput="render()"></label>
+<label class="f">মাকবুল % (পাস)<input type="number" id="cM" value="33" oninput="render()"></label>
+<label class="f">মেধা তালিকা<select id="cMerit" onchange="render()"><option value="0">সবাই</option><option value="3">শীর্ষ ৩</option><option value="5">শীর্ষ ৫</option><option value="10">শীর্ষ ১০</option></select></label>
+</div></div>
+</div>
 <div class="sheet" id="sheet">
 <h2 id="shInst">প্রতিষ্ঠানের নাম</h2>
 <div class="sub"><span id="shExam">পরীক্ষা</span> — <span id="shCls">শ্রেণি</span> — ফলাফল শিট</div>
@@ -76,7 +86,8 @@ function fillSample(){
  render();
 }
 function gp(p){if(p>=80)return[5,'A+'];if(p>=70)return[4,'A'];if(p>=60)return[3.5,'A-'];if(p>=50)return[3,'B'];if(p>=40)return[2,'C'];if(p>=33)return[1,'D'];return[0,'F'];}
-function divM(p){if(p>=80)return['মুমতাজ','div-mumtaz'];if(p>=65)return['জায়্যিদ জিদ্দান','div-jj'];if(p>=50)return['জায়্যিদ','div-j'];if(p>=33)return['মাকবুল','div-m'];return['অকৃতকার্য','div-f'];}
+function th(){return {mum:+document.getElementById('cMum').value||80,jj:+document.getElementById('cJj').value||65,j:+document.getElementById('cJ').value||50,m:+document.getElementById('cM').value||33};}
+function divM(p){const t=th();if(p>=t.mum)return['মুমতাজ','div-mumtaz'];if(p>=t.jj)return['জায়্যিদ জিদ্দান','div-jj'];if(p>=t.j)return['জায়্যিদ','div-j'];if(p>=t.m)return['মাকবুল','div-m'];return['অকৃতকার্য','div-f'];}
 function render(){
  document.getElementById('shInst').textContent=document.getElementById('inst').value||'প্রতিষ্ঠানের নাম';
  document.getElementById('shExam').textContent=document.getElementById('exam').value||'পরীক্ষা';
@@ -86,12 +97,14 @@ function render(){
  const bd=document.getElementById('bdy');bd.innerHTML='';
  const rows=students.map((st,i)=>{
   let tot=0,full=0,fail=false,gpSum=0;
-  subjects.forEach((s,j)=>{const m=+((st.marks[j]||{}).v)||0;tot+=m;full+=s.full;const p=s.full?m/s.full*100:0;if(p<33)fail=true;gpSum+=gp(p)[0];});
+  const passM=th().m;subjects.forEach((s,j)=>{const m=+((st.marks[j]||{}).v)||0;tot+=m;full+=s.full;const p=s.full?m/s.full*100:0;if(p<passM)fail=true;gpSum+=gp(p)[0];});
   const pct=full?tot/full*100:0;
   return {i,tot,pct,fail,gpa:gpSum/subjects.length};
  });
  const order=[...rows].sort((a,b)=>b.tot-a.tot);const rank={};order.forEach((r,k)=>rank[r.i]=k+1);
+ const mLim=+document.getElementById('cMerit').value||0;
  rows.forEach(r=>{
+  if(mLim&&rank[r.i]>mLim)return;
   const st=students[r.i];const tr=document.createElement('tr');
   let h='<td>'+bn(r.i+1)+'</td><td><input class="nm" value="'+st.name.replace(/"/g,'&quot;')+'" onchange="students['+r.i+'].name=this.value" placeholder="নাম"> <button class="btn sm noprint" onclick="delStudent('+r.i+')">✕</button></td>';
   subjects.forEach((s,j)=>{h+='<td><input type="number" min="0" value="'+(((st.marks[j]||{}).v)??'')+'" onchange="students['+r.i+'].marks['+j+'].v=this.value;render()"></td>';});

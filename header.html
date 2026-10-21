@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>প্রশ্নপত্র হেডার — Madrasa Manager</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Hind Siliguri","Noto Sans Bengali",sans-serif;background:#f1f5f9;color:#0d213d}
+.bar{background:#0d213d;color:#fff;padding:12px 18px;display:flex;align-items:center;gap:14px}
+.bar a{color:#fff;text-decoration:none;font-size:15px}
+.bar h1{font-size:18px;flex:1}
+.bar button{background:#c9a227;border:none;color:#0d213d;font-weight:700;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:15px}
+.wrap{max-width:1000px;margin:16px auto;display:flex;gap:16px;padding:0 16px;align-items:flex-start}
+.form{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;flex:0 0 320px}
+.form h3{margin-bottom:12px}
+label.f{display:flex;flex-direction:column;font-size:14px;gap:4px;margin-bottom:10px}
+input,select{padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px;font-family:inherit}
+.check{flex-direction:row!important;align-items:center;gap:8px!important}
+.paper{background:#fff;flex:1;padding:40px 36px;min-height:500px;border:1px solid #e2e8f0}
+.paper .bis{text-align:center;font-size:26px;margin-bottom:10px}
+.paper .ph{text-align:center;padding-bottom:10px;margin-bottom:12px}
+.paper .ph h2{font-size:24px}.paper .ph p{font-size:14px;color:#475569}
+.paper .frow{display:flex;justify-content:space-between;font-size:15px;margin:8px 0;flex-wrap:wrap;gap:6px}
+.dv1{border-bottom:3px double #0d213d}.dv2{border-bottom:2px solid #0d213d}.dv3{border-bottom:4px solid #0d213d}
+.dv4{border-bottom:2px dashed #0d213d}.dv5{border:3px double #0d213d;padding:8px}.dv6{border:2px solid #0d213d;padding:8px}
+.dv7{border-bottom:6px double #c9a227}.dv8{border-top:2px solid #0d213d;border-bottom:2px solid #0d213d;padding:6px 0}.dv9{box-shadow:0 3px 0 #0d213d}
+@media print{.bar,.form{display:none!important}body{background:#fff}.wrap{display:block;padding:0;margin:0;max-width:none}.paper{border:none}}
+@media(max-width:900px){.wrap{flex-direction:column}.form{flex:none}}
+</style>
+</head>
+<body>
+<div class="bar"><a href="index.html">← সব টুলস</a><h1>📋 প্রশ্নপত্র হেডার</h1><button onclick="window.print()">🖨️ প্রিন্ট</button></div>
+<div class="wrap">
+<div class="form"><h3>তথ্য দিন</h3>
+<label class="f check"><input type="checkbox" id="bis" checked oninput="render()"> বিসমিল্লাহ দেখাও</label>
+<label class="f">প্রতিষ্ঠানের নাম<input id="inst" oninput="render()" placeholder="মাদরাসার নাম"></label>
+<label class="f">পরীক্ষার নাম<input id="exam" oninput="render()" placeholder="যেমন: ১ম সাময়িক পরীক্ষা"></label>
+<label class="f">শ্রেণি / জামাত<input id="cls" oninput="render()" placeholder="যেমন: ৫ম শ্রেণি"></label>
+<label class="f">বিষয়<input id="sub" oninput="render()" placeholder="যেমন: বাংলা"></label>
+<label class="f">সময়<input id="time" oninput="render()" placeholder="যেমন: ৩ ঘণ্টা"></label>
+<label class="f">পূর্ণমান<input id="marks" oninput="render()" placeholder="যেমন: ১০০"></label>
+<label class="f">নিচের দাগের স্টাইল<select id="dv" oninput="render()">
+<option value="dv1">ডাবল দাগ</option><option value="dv2">একক দাগ</option><option value="dv3">মোটা দাগ</option>
+<option value="dv4">ড্যাশড দাগ</option><option value="dv5">বক্স (ডাবল)</option><option value="dv6">বক্স (একক)</option>
+<option value="dv7">সোনালি ডাবল</option><option value="dv8">উপরে-নিচে দাগ</option><option value="dv9">ছায়া দাগ</option>
+</select></label>
+</div>
+<div class="paper" id="paper"></div>
+</div>
+<script>
+const e=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function render(){
+ const dv=document.getElementById('dv').value;
+ let h='';
+ if(document.getElementById('bis').checked) h+='<div class="bis">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
+ h+='<div class="ph '+dv+'"><h2>'+(e(document.getElementById('inst').value)||'প্রতিষ্ঠানের নাম')+'</h2><p>'+(e(document.getElementById('exam').value)||'পরীক্ষার নাম')+'</p></div>';
+ h+='<div class="frow"><span>শ্রেণি: '+(e(document.getElementById('cls').value)||'—')+'</span><span>বিষয়: '+(e(document.getElementById('sub').value)||'—')+'</span></div>';
+ h+='<div class="frow"><span>সময়: '+(e(document.getElementById('time').value)||'—')+'</span><span>পূর্ণমান: '+(e(document.getElementById('marks').value)||'—')+'</span></div>';
+ document.getElementById('paper').innerHTML=h;
+}
+render();
+</script>
+</body>
+</html>
