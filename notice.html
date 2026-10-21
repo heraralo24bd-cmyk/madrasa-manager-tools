@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>নোটিশ মেকার — Madrasa Manager</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Hind Siliguri","Noto Sans Bengali",sans-serif;background:#f1f5f9;color:#0d213d}
+.bar{background:#0d213d;color:#fff;padding:12px 18px;display:flex;align-items:center;gap:14px}
+.bar a{color:#fff;text-decoration:none;font-size:15px}
+.bar h1{font-size:18px;flex:1}
+.bar button{background:#c9a227;border:none;color:#0d213d;font-weight:700;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:15px}
+.wrap{max-width:1100px;margin:16px auto;display:flex;gap:16px;padding:0 16px;align-items:flex-start}
+.form{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;flex:0 0 340px}
+.form h3{margin-bottom:12px}
+label.f{display:flex;flex-direction:column;font-size:14px;gap:4px;margin-bottom:10px}
+input,select,textarea{padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px;font-family:inherit}
+textarea{rows:5;min-height:110px;resize:vertical}
+.paper{background:#fff;flex:1;padding:48px 44px;min-height:700px;border:1px solid #e2e8f0;box-shadow:0 3px 12px rgba(13,33,61,.08)}
+.paper .phead{text-align:center;border-bottom:3px double #0d213d;padding-bottom:12px;margin-bottom:18px}
+.paper .phead h2{font-size:24px}
+.paper .phead p{color:#475569;font-size:14px}
+.paper .meta{display:flex;justify-content:space-between;font-size:14px;margin-bottom:16px;color:#334155}
+.paper .ntitle{text-align:center;font-size:20px;font-weight:800;text-decoration:underline;margin:14px 0}
+.paper .nbody{font-size:16px;line-height:2;white-space:pre-wrap}
+.paper .sig{margin-top:60px;display:flex;justify-content:flex-end}
+.paper .sig div{text-align:center;font-size:15px;line-height:1.9}
+@media print{.bar,.form{display:none!important}body{background:#fff}.wrap{display:block;padding:0;margin:0;max-width:none}.paper{border:none;box-shadow:none}}
+@media(max-width:900px){.wrap{flex-direction:column}.form{flex:none}}
+</style>
+</head>
+<body>
+<div class="bar"><a href="index.html">← সব টুলস</a><h1>📢 নোটিশ মেকার</h1><button onclick="window.print()">🖨️ প্রিন্ট</button></div>
+<div class="wrap">
+<div class="form">
+<h3>তথ্য দিন</h3>
+<label class="f">টেমপ্লেট<select id="tpl" onchange="applyTpl()">
+<option value="exam">পরীক্ষার নোটিশ</option>
+<option value="holiday">ছুটির নোটিশ</option>
+<option value="admit">ভর্তি নোটিশ</option>
+<option value="guardian">অভিভাবক সভা</option>
+<option value="teacher">শিক্ষক সভা</option>
+<option value="general">সাধারণ নোটিশ</option>
+</select></label>
+<label class="f">প্রতিষ্ঠানের নাম<input id="inst" oninput="render()" placeholder="মাদরাসার নাম"></label>
+<label class="f">ঠিকানা<input id="addr" oninput="render()" placeholder="ঠিকানা"></label>
+<label class="f">নোটিশের শিরোনাম<input id="title" oninput="render()"></label>
+<label class="f">তারিখ<input id="date" type="date" oninput="render()"></label>
+<label class="f">বিবরণ<textarea id="body" oninput="render()"></textarea></label>
+<label class="f">স্বাক্ষরকারীর নাম<input id="sign" oninput="render()" placeholder="যেমন: মুহতামিম"></label>
+<label class="f">পদবি<input id="post" oninput="render()" placeholder="যেমন: মুহতামিম"></label>
+</div>
+<div class="paper" id="paper">
+<div class="phead"><h2 id="pInst">প্রতিষ্ঠানের নাম</h2><p id="pAddr">ঠিকানা</p></div>
+<div class="meta"><span>স্মারক নং: <span id="pRef">—</span></span><span>তারিখ: <span id="pDate">—</span></span></div>
+<div class="ntitle" id="pTitle">নোটিশ</div>
+<div class="nbody" id="pBody"></div>
+<div class="sig"><div><span id="pSign">—</span><br><span id="pPost">—</span></div></div>
+</div>
+</div>
+<script>
+const bn=d=>String(d).replace(/[0-9]/g,c=>'০১২৩৪৫৬৭৮৯'[c]);
+const TPLS={
+exam:{t:'পরীক্ষা সংক্রান্ত নোটিশ',b:'এতদ্বারা সংশ্লিষ্ট সকলের অবগতির জন্য জানানো যাচ্ছে যে, আগামী পরীক্ষা যথাসময়ে অনুষ্ঠিত হবে।\n\nসকল ছাত্রকে যথাযথ প্রস্তুতি নিয়ে পরীক্ষায় অংশগ্রহণের জন্য নির্দেশ দেওয়া হলো।\n\nআদেশক্রমে, কর্তৃপক্ষ'},
+holiday:{t:'ছুটির নোটিশ',b:'এতদ্বারা সকলের অবগতির জন্য জানানো যাচ্ছে যে, উপলক্ষে প্রতিষ্ঠান বন্ধ থাকবে।\n\nছুটি শেষে যথারীতি ক্লাস চালু হবে।\n\nআদেশক্রমে, কর্তৃপক্ষ'},
+admit:{t:'ভর্তি বিজ্ঞপ্তি',b:'ভর্তি ইচ্ছুক ছাত্রদের জানানো যাচ্ছে যে, নতুন শিক্ষাবর্ষে ভর্তি কার্যক্রম শুরু হয়েছে।\n\nভর্তির জন্য অফিসে যোগাযোগ করুন।\n\nআদেশক্রমে, কর্তৃপক্ষ'},
+guardian:{t:'অভিভাবক সভার নোটিশ',b:'সম্মানিত অভিভাবকবৃন্দের অবগতির জন্য জানানো যাচ্ছে যে, এক মতবিনিময় সভার আয়োজন করা হয়েছে।\n\nসকল অভিভাবককে যথাসময়ে উপস্থিত থাকার জন্য অনুরোধ করা হলো।\n\nআদেশক্রমে, কর্তৃপক্ষ'},
+teacher:{t:'শিক্ষক সভার নোটিশ',b:'সকল শিক্ষক-শিক্ষিকাকে জানানো যাচ্ছে যে, এক জরুরি সভা আহ্বান করা হয়েছে।\n\nসকলকে যথাসময়ে উপস্থিত থাকতে হবে।\n\nআদেশক্রমে, কর্তৃপক্ষ'},
+general:{t:'নোটিশ',b:'এতদ্বারা সংশ্লিষ্ট সকলের অবগতির জন্য জানানো যাচ্ছে যে,\n\n\n\nআদেশক্রমে, কর্তৃপক্ষ'}};
+function applyTpl(){const t=TPLS[document.getElementById('tpl').value];document.getElementById('title').value=t.t;document.getElementById('body').value=t.b;render();}
+function render(){
+ document.getElementById('pInst').textContent=document.getElementById('inst').value||'প্রতিষ্ঠানের নাম';
+ document.getElementById('pAddr').textContent=document.getElementById('addr').value||'ঠিকানা';
+ document.getElementById('pTitle').textContent=document.getElementById('title').value||'নোটিশ';
+ const d=document.getElementById('date').value;
+ document.getElementById('pDate').textContent=d?bn(d.split('-').reverse().join('/')):'—';
+ document.getElementById('pBody').textContent=document.getElementById('body').value;
+ document.getElementById('pSign').textContent=document.getElementById('sign').value||'—';
+ document.getElementById('pPost').textContent=document.getElementById('post').value||'—';
+ document.getElementById('pRef').textContent=bn(new Date().getFullYear())+'/'+bn(String(Math.floor(Math.random()*900)+100));
+}
+applyTpl();
+</script>
+</body>
+</html>
