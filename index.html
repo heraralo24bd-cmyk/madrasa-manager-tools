@@ -694,7 +694,30 @@ let dvNumber=0;
 function dvNumberText(n){return String(n).replace(/[0-9]/g,d=>'০১২৩৪৫৬৭৮৯'[+d])}
 function dvMath(rows,cols,op){return '<table style="width:100%;table-layout:fixed;border-collapse:collapse;margin:10px 0">'+Array.from({length:rows},(_,r)=>'<tr>'+Array.from({length:cols},()=>`<td style="padding:12px;text-align:right;border:none"><div>______</div><div>${op} ______</div><div style="border-top:1px solid #111;margin-top:4px">______</div></td>`).join('')+'</tr>').join('')+'</table><p><br></p>'}
 function adTemplate(category,index){const name=adCatalog[category][index];const bnHeader='<h2 style="text-align:center">প্রতিষ্ঠানের নাম</h2><p style="text-align:center">'+browserEscape(name)+'</p>';if(category==='বাংলা টেমপ্লেট')return browserTemplates['বাংলা টেমপ্লেট']().replace('পরীক্ষার নাম ও সাল',browserEscape(name));if(category==='আরবি টেমপ্লেট')return '<p style="text-align:center">'+browserEscape(name)+'</p>'+browserTemplates['আরবি টেমপ্লেট']();if(category==='ইংরেজি টেমপ্লেট')return browserTemplates['ইংরেজি টেমপ্লেট']();if(category==='টেবিল প্রশ্ন'){const columns=[2,2,3,4,5,3,3,2,2,4,3,3,5,4,6][index],headers=index<2?['বাম পাশ (ক)','ডান পাশ (খ)']:index===11?['প্রশ্ন','মান','মোট']:index===14?['নাম','বিষয় ১','বিষয় ২','বিষয় ৩','বিষয় ৪','বিষয় ৫']:Array.from({length:columns},(_,i)=>'কলাম '+dvNumberText(i+1));return bnHeader+'<p>শ্রেণি: ______ বিষয়: ______</p>'+browserTable(index===14?11:6,columns,headers)}if(category==='পরীক্ষার রুটিন'){const headers=[['তারিখ','দিন','শ্রেণি','বিষয়','সময়'],['তারিখ','বিষয়','শুরু','শেষ'],['তারিখ','সময়','কক্ষ','দায়িত্বপ্রাপ্ত শিক্ষক']][index];return bnHeader+'<p>পরীক্ষার নাম: ______ সাল: ______</p>'+browserTable(8,headers.length,headers)}const notice=['পরীক্ষার তারিখ ও সময়সূচি নিচে দেওয়া হলো।','নতুন শিক্ষাবর্ষে ভর্তি কার্যক্রম শুরু হবে।','প্রতিষ্ঠান ছুটি থাকবে।','অভিভাবক সভা অনুষ্ঠিত হবে।','নির্ধারিত সময়ের মধ্যে ফি পরিশোধের অনুরোধ করা হলো।','শিক্ষক সভা অনুষ্ঠিত হবে।','বিশেষ কার্যক্রম অনুষ্ঠিত হবে।','সকলের অবগতির জন্য জানানো যাচ্ছে যে'][index];return bnHeader+'<p>তারিখ: ______ স্মারক: ______</p><h3 style="text-align:center">নোটিশ</h3><p>'+notice+' ____________________</p><p>স্থান: ______ সময়: ______</p><p style="text-align:right;margin-top:30px">অধ্যক্ষ / প্রধান শিক্ষক</p>'}
-function adPanel(category){modal(category,'<p>এগুলো সম্পাদনাযোগ্য প্রাথমিক কাঠামো। প্রতিটি নতুন ডকুমেন্ট হিসেবে খুলবে।</p><div class="ad-menu">'+adCatalog[category].map((n,i)=>`<button data-action="ad:template:${category}:${i}">${browserEscape(n)}</button>`).join('')+'</div>')}
+const AD_CATS=['বাংলা টেমপ্লেট','আরবি টেমপ্লেট','ইংরেজি টেমপ্লেট','টেবিল প্রশ্ন','পরীক্ষার রুটিন','সকল প্রকার নোটিশ'];
+const AD_ICONS=['\u{1F1E7}\u{1F1E9}','\u{1F1F8}\u{1F1E6}','\u{1F1EC}\u{1F1E7}','\u{1F4CA}','\u{1F4C5}','\u{1F4CB}'];
+function adPanel(category){
+ const short=c=>c.replace(' টেমপ্লেট','').replace('সকল প্রকার ','');
+ modal('Add-Ins প্রশ্নপত্র টেমপ্লেট লাইব্রেরি','<p style="color:#64748b;font-size:13px;margin-bottom:10px">বাংলা, আরবি ও ইংরেজি বিভাগের বোর্ড ও মাদরাসা প্রশ্নপত্র টেমপ্লেট</p>'
+ +'<div class="ad-tabs">'+AD_CATS.map((c,i)=>'<button class="ad-tab'+(c===category?' on':'')+'" data-adi="'+i+'">'+AD_ICONS[i]+' '+short(c)+' '+adCatalog[c].length+'</button>').join('')+'</div>'
+ +'<div class="ad-cards" id="adCards"></div>'
+ +'<div style="margin-top:12px;text-align:right"><button class="r-btn" data-action="close">বন্ধ করুন</button></div>');
+ const render=i=>{
+  const c=AD_CATS[i];
+  document.querySelectorAll('.ad-tab').forEach((b,j)=>b.classList.toggle('on',j===i));
+  const box=document.getElementById('adCards');
+  box.innerHTML=adCatalog[c].map((n,k)=>'<div class="ad-card"><span class="ad-card-t">'+browserEscape(n)+'</span><span class="ad-card-b"><button class="r-btn" data-adput="'+c+'|'+k+'">কার্সরে যুক্ত করুন (Insert)</button> <button class="r-btn primary" data-action="ad:template:'+c+':'+k+'">সম্পূর্ণ পেজে লোড করুন</button></span></div>').join('');
+  box.querySelectorAll('[data-adput]').forEach(btn=>btn.addEventListener('click',function(ev){
+   ev.preventDefault();ev.stopPropagation();
+   const parts=this.getAttribute('data-adput').split('|');
+   document.querySelector('.overlay').classList.add('hidden');
+   format('insertHTML',adTemplate(parts[0],+parts[1]));
+   toast('টেমপ্লেট কার্সরে যুক্ত হয়েছে');
+  }));
+ };
+ document.querySelectorAll('.ad-tab').forEach(b=>b.onclick=()=>render(+b.dataset.adi));
+ render(Math.max(0,AD_CATS.indexOf(category)));
+}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-action^="ad:"],[data-action^="dv:"]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();const action=b.dataset.action;if(action.startsWith('ad:category:')){adPanel(action.slice(12));return}if(action.startsWith('ad:template:')){const key=action.slice(12),split=key.lastIndexOf(':'),category=key.slice(0,split),index=+key.slice(split+1);browserNew(adCatalog[category][index],adTemplate(category,index));toast('টেমপ্লেটের নতুন কপি তৈরি হয়েছে');return}const a=action.slice(3);
 if(a.startsWith('text:'))format('insertText',a.slice(5));
 else if(a==='stimulus')format('insertHTML','<div style="border:1px solid #0b1f3a;padding:12px;margin:10px 0"><p>উদ্দীপক লিখুন...</p></div><p><br></p>');
@@ -1173,16 +1196,21 @@ var extras={
  'Home':[['স্মার্ট টুলস',[['Smart OCR','vf:ocr','primary']],180]],
  'Insert':[['হেডার',[['প্রশ্নপত্র হেডার','openmod:header.html','primary']],170]],
  'Developer':[['টুলস',[['সহায়ক টুলস','openmod:tools.html','primary'],['বিজয় কনভার্টার','bj-convert','']],260]],
- 'Add-Ins':[['মডিউল',[['টেমপ্লেট গ্যালারি','openmod:templates.html','primary'],['নোটিশ মেকার','openmod:notice.html',''],['রুটিন মেকার','openmod:routine.html','']],330]]
+ 'Add-Ins':[['মডিউল',[['টেমপ্লেট গ্যালারি','openmod:templates.html','primary'],['নোটিশ মেকার','openmod:notice.html',''],['রুটিন মেকার','openmod:routine.html','']],200]]
 };
 tab=function(name){
  _tab(name);
  var rib=document.querySelector('.ribbon');
+ if(name==='Add-Ins'){
+  var tg=Array.from(rib.querySelectorAll('.r-group')).find(function(g){var l=g.querySelector('.r-label');return l&&l.textContent.indexOf('বোর্ড')>=0;});
+  if(tg)tg.style.width='auto';
+ }
  if(!rib||!extras[name]||rib.querySelector('.mm-extra'))return;
  try{
   extras[name].forEach(function(g){
    var btns=g[1].map(function(b){return ribbonButton(b[0],b[1],b[2]);}).join('');
-   rib.insertAdjacentHTML('beforeend', rGroup(g[0], rStack(rRow(btns)), g[2]).replace('r-group','r-group mm-extra'));
+   var body=g[0]==='মডিউল'?rStack(btns):rStack(rRow(btns));
+   rib.insertAdjacentHTML('beforeend', rGroup(g[0], body, g[0]==='মডিউল'?150:g[2]).replace('r-group','r-group mm-extra'));
   });
  }catch(e){}
 };
@@ -1348,7 +1376,19 @@ document.addEventListener('click',function(e){
   else if(a==='open-pdf'){e.preventDefault();e.stopPropagation();mmOpenPdf();}
   else if(a==='app-options'){e.preventDefault();e.stopPropagation();mmOptions();}
   else if(a==='bj-convert'||a==='preview:বিজয়'||a==='preview:বিজয়'){e.preventDefault();e.stopPropagation();mmBijoy();}
+
 },true);
 })();
 </script>
+<style>
+.ad-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.ad-tab{border:1px solid #cbd5e1;background:#f1f5f9;padding:7px 12px;border-radius:20px;font-size:12px;cursor:pointer}
+.ad-tab.on{background:#0d213d;color:#fff;border-color:#0d213d}
+.ad-cards{display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow:auto}
+.ad-card{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;background:#fff}
+.ad-card-t{font-size:13px}
+.ad-card-b{white-space:nowrap}
+.r-group .template-tile,.r-group .ad-tile{min-width:74px!important;max-width:90px;padding:3px 4px!important;font-size:9px!important;height:52px}
+.r-group .template-tile small,.r-group .ad-tile small,.r-group .ad-tile .ad-card-label{font-size:10px!important}
+</style>
 </body></html>
